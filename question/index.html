@@ -38,14 +38,6 @@
       pointer-events: none;
     }
 
-    body::after {
-      content: "";
-      position: fixed;
-      inset: 0;
-      background: linear-gradient(to bottom, rgba(255, 249, 196, 0.15), rgba(255,255,255,0));
-      pointer-events: none;
-    }
-
     /* PETALS */
     .petal {
       position: fixed;
@@ -54,18 +46,17 @@
       height: 12px;
       background: radial-gradient(circle at 30% 30%, #fffde7, #fdd835, #f9a825);
       border-radius: 70% 30% 70% 30%;
-      opacity: 0;
-      animation: floatUp linear infinite;
       pointer-events: none;
+      z-index: 1;
+      animation: floatUp linear forwards;
     }
 
     @keyframes floatUp {
       0% { transform: translateY(0) rotate(0deg); opacity: 0; }
-      10% { opacity: 0.7; }
+      10% { opacity: 0.8; }
       100% { transform: translateY(-110vh) rotate(360deg); opacity: 0; }
     }
 
-    /* ENVELOPE */
     .envelope-screen {
       position: fixed;
       inset: 0;
@@ -111,7 +102,6 @@
       font-size: 14px;
     }
 
-    /* MAIN */
     .main {
       opacity: 0;
       transition: 0.8s ease;
@@ -142,15 +132,8 @@
     }
 
     .message {
-      max-width: 420px;
-      margin: 0 auto;
-      text-align: center;
       font-size: 16px;
       line-height: 1.7;
-    }
-
-    .message p {
-      margin-bottom: 14px;
     }
 
     .buttons {
@@ -158,7 +141,6 @@
       justify-content: center;
       gap: 14px;
       margin-top: 25px;
-      flex-wrap: wrap;
     }
 
     button {
@@ -167,12 +149,12 @@
       border: none;
       font-size: 16px;
       cursor: pointer;
-      touch-action: manipulation;
     }
 
     .accept {
       background: linear-gradient(45deg, #ff6b81, #ff4757);
       color: white;
+      transition: transform 0.2s ease;
     }
 
     .deny {
@@ -182,7 +164,6 @@
       user-select: none;
     }
 
-    /* EMOJIS */
     .emoji {
       position: fixed;
       font-size: 60px;
@@ -198,7 +179,6 @@
     .left { left: 10px; top: 45%; }
     .right { right: 10px; top: 45%; }
 
-    /* DIALOG */
     .overlay {
       position: fixed;
       inset: 0;
@@ -216,12 +196,6 @@
       border-radius: 18px;
       text-align: center;
       width: min(320px, 90vw);
-    }
-
-    .dialog button {
-      margin-top: 15px;
-      background: #ff4757;
-      color: white;
     }
   </style>
 </head>
@@ -265,98 +239,104 @@
 
 <script>
   const envelope = document.getElementById("envelope");
-  const envelopeScreen = document.getElementById("envelopeScreen");
   const main = document.getElementById("main");
-
   const acceptBtn = document.getElementById("acceptBtn");
   const denyBtn = document.getElementById("denyBtn");
 
+  const leftEmoji = document.getElementById("leftEmoji");
+  const rightEmoji = document.getElementById("rightEmoji");
   const overlay = document.getElementById("overlay");
   const closeDialog = document.getElementById("closeDialog");
 
-  const leftEmoji = document.getElementById("leftEmoji");
-  const rightEmoji = document.getElementById("rightEmoji");
 
-  let pos = { x: 100, y: 100 };
-  let velocity = { x: 0, y: 0 };
   let mouse = { x: 0, y: 0 };
+  let pos = { x: 100, y: 100 };
+  let vel = { x: 0, y: 0 };
+
+  let acceptHover = false;
+  let acceptTimer = null;
+
+  document.addEventListener("mousemove", e => {
+    mouse.x = e.clientX;
+    mouse.y = e.clientY;
+  });
 
   envelope.onclick = () => {
     envelope.classList.add("open");
     setTimeout(() => {
-      envelopeScreen.style.display = "none";
+      document.getElementById("envelopeScreen").style.display = "none";
       main.classList.add("show");
       start();
-    }, 700);
+      startPetals();
+    }, 600);
   };
 
-  function createPetals() {
-    for (let i = 0; i < 25; i++) {
+  function startPetals() {
+    setInterval(() => {
       const p = document.createElement("div");
       p.className = "petal";
       p.style.left = Math.random() * 100 + "vw";
       p.style.animationDuration = (6 + Math.random() * 6) + "s";
       document.body.appendChild(p);
-    }
+      setTimeout(() => p.remove(), 12000);
+    }, 250);
   }
-  createPetals();
 
   function start() {
     const r = denyBtn.getBoundingClientRect();
     pos.x = r.left;
     pos.y = r.top;
 
-    denyBtn.style.left = pos.x + "px";
-    denyBtn.style.top = pos.y + "px";
-
-    document.addEventListener("mousemove", e => {
-      mouse.x = e.clientX;
-      mouse.y = e.clientY;
-    });
-
-    document.addEventListener("touchmove", e => {
-      if (e.touches.length > 0) {
-        mouse.x = e.touches[0].clientX;
-        mouse.y = e.touches[0].clientY;
-      }
-    }, { passive: true });
-
-    acceptBtn.onmouseenter = () => {
-      leftEmoji.classList.add("show");
-      rightEmoji.classList.add("show");
-    };
-
-    acceptBtn.onmouseleave = () => {
-      leftEmoji.classList.remove("show");
-      rightEmoji.classList.remove("show");
-    };
-
     function animate() {
       const r = denyBtn.getBoundingClientRect();
 
-      let dx = (pos.x + r.width/2) - mouse.x;
-      let dy = (pos.y + r.height/2) - mouse.y;
+      const cx = pos.x + r.width / 2;
+      const cy = pos.y + r.height / 2;
+
+      let dx = cx - mouse.x;
+      let dy = cy - mouse.y;
       let dist = Math.max(Math.sqrt(dx*dx + dy*dy), 0.1);
 
       const safe = 140;
 
       if (dist < safe) {
-        const f = (safe - dist)/safe;
-        velocity.x += (dx/dist)*f*2;
-        velocity.y += (dy/dist)*f*2;
+        let f = (safe - dist) / safe;
+        vel.x += (dx/dist) * f * 1.2;
+        vel.y += (dy/dist) * f * 1.2;
       }
 
-      velocity.x *= 0.9;
-      velocity.y *= 0.9;
+      vel.x *= 0.92;
+      vel.y *= 0.92;
 
-      pos.x += velocity.x;
-      pos.y += velocity.y;
+      pos.x += vel.x;
+      pos.y += vel.y;
 
-      pos.x = Math.max(0, Math.min(pos.x, window.innerWidth - r.width));
-      pos.y = Math.max(0, Math.min(pos.y, window.innerHeight - r.height));
+      const maxX = window.innerWidth - r.width;
+      const maxY = window.innerHeight - r.height;
+
+      pos.x = Math.max(0, Math.min(pos.x, maxX));
+      pos.y = Math.max(0, Math.min(pos.y, maxY));
 
       denyBtn.style.left = pos.x + "px";
       denyBtn.style.top = pos.y + "px";
+
+      const hover =
+        mouse.x >= pos.x &&
+        mouse.x <= pos.x + r.width &&
+        mouse.y >= pos.y &&
+        mouse.y <= pos.y + r.height;
+
+      if (hover && !acceptHover) {
+        leftEmoji.textContent = "😭";
+        rightEmoji.textContent = "😭";
+        leftEmoji.classList.add("show");
+        rightEmoji.classList.add("show");
+      }
+
+      if (!hover && !acceptHover) {
+        leftEmoji.classList.remove("show");
+        rightEmoji.classList.remove("show");
+      }
 
       requestAnimationFrame(animate);
     }
@@ -364,12 +344,31 @@
     animate();
   }
 
+  acceptBtn.addEventListener("mouseenter", () => {
+    acceptHover = true;
+
+    if (acceptTimer) clearTimeout(acceptTimer);
+
+    acceptBtn.style.transform = "scale(1.15)";
+    leftEmoji.textContent = "😍";
+    rightEmoji.textContent = "😍";
+    leftEmoji.classList.add("show");
+    rightEmoji.classList.add("show");
+  });
+
+  acceptBtn.addEventListener("mouseleave", () => {
+    acceptHover = false;
+    acceptBtn.style.transform = "scale(1)";
+
+    acceptTimer = setTimeout(() => {
+      leftEmoji.classList.remove("show");
+      rightEmoji.classList.remove("show");
+    }, 1000);
+  });
+
   acceptBtn.onclick = () => {
     confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-
-    setTimeout(() => {
-      overlay.style.display = "flex";
-    }, 400);
+    setTimeout(() => overlay.style.display = "flex", 400);
   };
 
   closeDialog.onclick = () => {
