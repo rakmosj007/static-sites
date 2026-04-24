@@ -6,17 +6,25 @@
 
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
   <style>
-    body {
+    html, body {
       margin: 0;
-      font-family: Arial, sans-serif;
-      height: 100vh;
+      padding: 0;
       overflow: hidden;
+      height: 100%;
+      height: 100dvh;
+      font-family: Arial, sans-serif;
+      touch-action: manipulation;
+    }
+
+    body {
       display: flex;
       justify-content: center;
       align-items: center;
-
       background: linear-gradient(135deg, #fff9c4, #dcedc1, #a8e6cf);
+      position: relative;
     }
 
     body::before {
@@ -69,7 +77,7 @@
     }
 
     .envelope {
-      width: 220px;
+      width: min(220px, 70vw);
       height: 140px;
       background: #fff3c4;
       border-radius: 12px;
@@ -100,12 +108,16 @@
       width: 100%;
       text-align: center;
       font-weight: bold;
+      font-size: 14px;
     }
 
     /* MAIN */
     .main {
       opacity: 0;
       transition: 0.8s ease;
+      width: 100%;
+      display: flex;
+      justify-content: center;
       z-index: 2;
     }
 
@@ -115,16 +127,22 @@
 
     .container {
       background: #f3f3f3;
-      padding: 50px;
-      border-radius: 30px;
+      padding: 30px 22px;
+      border-radius: 24px;
       box-shadow: 0 20px 50px rgba(0,0,0,0.25);
       text-align: center;
-      max-width: 520px;
-      position: relative;
+      width: min(520px, 92vw);
+      max-height: 85dvh;
+      overflow-y: auto;
+    }
+
+    h1 {
+      font-size: clamp(26px, 6vw, 40px);
+      margin-bottom: 10px;
     }
 
     .message {
-      font-size: 18px;
+      font-size: 16px;
       line-height: 1.7;
       text-align: left;
     }
@@ -132,47 +150,47 @@
     .buttons {
       display: flex;
       justify-content: center;
-      gap: 20px;
+      gap: 14px;
       margin-top: 25px;
+      flex-wrap: wrap;
     }
 
     button {
-      padding: 14px 26px;
-      border-radius: 14px;
+      padding: 12px 18px;
+      border-radius: 12px;
       border: none;
-      font-size: 18px;
+      font-size: 16px;
       cursor: pointer;
+      touch-action: manipulation;
     }
 
     .accept {
       background: linear-gradient(45deg, #ff6b81, #ff4757);
       color: white;
-      transition: transform 0.2s ease;
     }
 
     .deny {
       background: #bfc5cc;
       position: fixed;
       z-index: 999;
+      user-select: none;
     }
 
     /* EMOJIS */
     .emoji {
       position: fixed;
-      font-size: 80px;
+      font-size: 60px;
       opacity: 0;
-      transform: scale(0.8);
       transition: 0.3s ease;
       pointer-events: none;
     }
 
     .emoji.show {
       opacity: 1;
-      transform: scale(1);
     }
 
-    .left { left: 40px; top: 50%; transform: translateY(-50%); }
-    .right { right: 40px; top: 50%; transform: translateY(-50%); }
+    .left { left: 10px; top: 45%; }
+    .right { right: 10px; top: 45%; }
 
     /* DIALOG */
     .overlay {
@@ -183,13 +201,15 @@
       align-items: center;
       background: rgba(0,0,0,0.6);
       z-index: 2000;
+      padding: 20px;
     }
 
     .dialog {
       background: white;
-      padding: 30px 40px;
-      border-radius: 20px;
+      padding: 25px;
+      border-radius: 18px;
       text-align: center;
+      width: min(320px, 90vw);
     }
 
     .dialog button {
@@ -202,26 +222,20 @@
 
 <body>
 
-<!-- ENVELOPE -->
 <div id="envelopeScreen" class="envelope-screen">
   <div id="envelope" class="envelope">
     <div class="label">You’ve got a message 💌</div>
   </div>
 </div>
 
-<!-- MAIN -->
 <div id="main" class="main">
-
   <div class="container">
     <h1>Hey Amruta ❤️</h1>
 
     <div class="message">
-      <p>I hope you're having a lovely day. I just wanted to take a moment to tell you how amazing you are.</p>
-
+      <p>I hope you're having a lovely day. Just wanted to tell you how amazing you are bbg.</p>
       <p>I thank my stars every day for blessing me with a smart, intelligent, empathetic, beautiful, and caring girlfriend.</p>
-
-      <p>Even on days when I feel tired or lost, I find solace in knowing I get to come home to you.</p>
-
+      <p>Even on days when I feel tired or lost, I find solace in knowing that I get to come home to you.</p>
       <p>Thank you for being my sunshine ❤️</p>
     </div>
 
@@ -232,16 +246,13 @@
   </div>
 </div>
 
-<!-- EMOJIS -->
 <div id="leftEmoji" class="emoji left">😍</div>
 <div id="rightEmoji" class="emoji right">😍</div>
 
-<!-- DIALOG -->
 <div id="overlay" class="overlay">
   <div class="dialog">
     <h2>Yay!! ❤️</h2>
-    <p>The moments we’ve shared often make me smile randomly throughout the day. <br><br>
-       So thank you for giving me another reason 😘</p>
+    <p>The moments we’ve shared often make me smile randomly throughout the day.<br><br>So thank you 😘</p>
     <button id="closeDialog">Close</button>
   </div>
 </div>
@@ -260,13 +271,12 @@
   const leftEmoji = document.getElementById("leftEmoji");
   const rightEmoji = document.getElementById("rightEmoji");
 
-  let pos = { x: 200, y: 200 };
+  let pos = { x: 100, y: 100 };
   let velocity = { x: 0, y: 0 };
   let mouse = { x: 0, y: 0 };
 
   envelope.onclick = () => {
     envelope.classList.add("open");
-
     setTimeout(() => {
       envelopeScreen.style.display = "none";
       main.classList.add("show");
@@ -290,7 +300,6 @@
     pos.x = r.left;
     pos.y = r.top;
 
-    denyBtn.style.position = "fixed";
     denyBtn.style.left = pos.x + "px";
     denyBtn.style.top = pos.y + "px";
 
@@ -299,15 +308,22 @@
       mouse.y = e.clientY;
     });
 
-    acceptBtn.addEventListener("mouseenter", () => {
+    document.addEventListener("touchmove", e => {
+      if (e.touches.length > 0) {
+        mouse.x = e.touches[0].clientX;
+        mouse.y = e.touches[0].clientY;
+      }
+    }, { passive: true });
+
+    acceptBtn.onmouseenter = () => {
       leftEmoji.classList.add("show");
       rightEmoji.classList.add("show");
-    });
+    };
 
-    acceptBtn.addEventListener("mouseleave", () => {
+    acceptBtn.onmouseleave = () => {
       leftEmoji.classList.remove("show");
       rightEmoji.classList.remove("show");
-    });
+    };
 
     function animate() {
       const r = denyBtn.getBoundingClientRect();
@@ -316,18 +332,12 @@
       let dy = (pos.y + r.height/2) - mouse.y;
       let dist = Math.max(Math.sqrt(dx*dx + dy*dy), 0.1);
 
-      const safe = 160;
+      const safe = 140;
 
       if (dist < safe) {
         const f = (safe - dist)/safe;
         velocity.x += (dx/dist)*f*2;
         velocity.y += (dy/dist)*f*2;
-
-        leftEmoji.textContent = "😭";
-        rightEmoji.textContent = "😭";
-      } else {
-        leftEmoji.textContent = "😍";
-        rightEmoji.textContent = "😍";
       }
 
       velocity.x *= 0.9;
