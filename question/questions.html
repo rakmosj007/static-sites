@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Question Game</title>
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: linear-gradient(135deg, #ffdde1, #ee9ca7);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        overflow: hidden;
+    }
+
+    .card {
+        background: white;
+        padding: 30px;
+        border-radius: 20px;
+        width: 90%;
+        max-width: 500px;
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        animation: popIn 0.6s ease;
+    }
+
+    @keyframes popIn {
+        from { transform: scale(0.8); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+    }
+
+    h1 {
+        margin-bottom: 20px;
+    }
+
+    .question {
+        font-size: 22px;
+        margin-bottom: 20px;
+    }
+
+    .btn-row {
+        display: flex;
+        justify-content: space-around;
+        margin-top: 20px;
+    }
+
+    button {
+        padding: 12px 20px;
+        border: none;
+        border-radius: 12px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: transform 0.2s ease, background 0.3s ease;
+    }
+
+    button:hover {
+        transform: scale(1.05);
+    }
+
+    .yes {
+        background: #ff5e8a;
+        color: white;
+    }
+
+    .no {
+        background: #4c6fff;
+        color: white;
+    }
+
+    .popup {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: white;
+        padding: 15px 25px;
+        border-radius: 15px;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        display: none;
+        animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+        to { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+
+    .yay {
+        font-size: 24px;
+        color: #22c55e;
+        margin-top: 10px;
+    }
+
+</style>
+</head>
+<body>
+
+<div class="popup" id="popup"></div>
+
+<div class="card" id="card">
+    <h1>Answer honestly</h1>
+    <div class="question" id="question"></div>
+    <div class="btn-row">
+        <button class="yes" onclick="yesClick()">Yes</button>
+        <button class="no" onclick="noClick()">No</button>
+    </div>
+    <div class="yay" id="yay"></div>
+</div>
+
+<script>
+const questions = [
+    "Do you think I am the cutest human alive",
+    "Would you still love me if I became Kothmir",
+    "Do I deserve unlimited hugs",
+    "Am I your favorite notification",
+    "Would you share your Coconut barfi with me",
+    "Do I make your day better",
+    "Am I allowed to steal your protein shakes",
+    "Would you pick me in a zombie apocalypse",
+    "Do I win at being your favorite person",
+    "Are you glad you said yes to me"
+];
+
+let index = 0;
+const questionEl = document.getElementById("question");
+const popup = document.getElementById("popup");
+const yay = document.getElementById("yay");
+
+const rageMessages = [
+    "Why are you being mean 🥲",
+    "This feels unnecessary...",
+    "I thought we were happy here 🥺",
+    "Okay that hurt a little :(",
+    "You are breaking my heart jaaneman 💔",
+    "Should I cry myself to bed 😭"
+];
+
+let rageIndex = 0;
+
+function loadQuestion() {
+    if (index < questions.length) {
+        questionEl.innerText = questions[index];
+        yay.innerText = "";
+    } else {
+        questionEl.innerText = "Game complete";
+        document.querySelector(".btn-row").style.display = "none";
+        yay.innerText = "You passed all questions";
+    }
+}
+
+function showPopup(text) {
+    popup.innerText = text;
+    popup.style.display = "block";
+    setTimeout(() => {
+        popup.style.display = "none";
+    }, 1200);
+}
+
+function noClick() {
+    showPopup(rageMessages[rageIndex]);
+    rageIndex = (rageIndex + 1) % rageMessages.length;
+}
+
+function yesClick() {
+    yay.innerText = "yayyy";
+    index++;
+    rageIndex = 0;
+    setTimeout(loadQuestion, 800);
+}
+
+loadQuestion();
+</script>
+
+</body>
+</html>

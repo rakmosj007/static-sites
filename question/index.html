@@ -251,6 +251,7 @@
     <h2>Yay!! ❤️</h2>
     <p>The moments we’ve shared often make me smile randomly throughout the day.<br><br>So thank you for giving me another reason 😘</p>
     <button id="closeDialog">Close</button>
+    <button id="nextPageBtn">Surprise?</button>
   </div>
 </div>
 
@@ -390,6 +391,12 @@
 
   closeDialog.onclick = () => {
     overlay.style.display = "none";
+  };
+
+  const nextPageBtn = document.getElementById("nextPageBtn");
+
+  nextPageBtn.onclick = () => {
+    window.location.href = "questions.html";
   };
 </script>
 
