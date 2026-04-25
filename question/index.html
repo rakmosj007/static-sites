@@ -139,27 +139,39 @@
     .buttons {
       display: flex;
       justify-content: center;
+      align-items: center;
       gap: 14px;
       margin-top: 25px;
     }
 
     button {
-      padding: 12px 18px;
-      border-radius: 12px;
-      border: none;
-      font-size: 16px;
-      cursor: pointer;
+    padding: 14px 28px;
+    border: none;
+    border-radius: 999px;
+    font-size: 17px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+    letter-spacing: 0.2px;
+  }
+
+    .btn-slot {
+      width: 200px;   /* reserve equal space */
+      height: 50px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
 
     .accept {
       background: linear-gradient(45deg, #ff6b81, #ff4757);
       color: white;
-      transition: transform 0.2s ease;
     }
 
     .deny {
       background: #bfc5cc;
-      position: fixed;
+      position: fixed; /* keeps your moving logic */
       z-index: 999;
       user-select: none;
     }
@@ -220,8 +232,13 @@
     </div>
 
     <div class="buttons">
-      <button id="acceptBtn" class="accept">Accept my love</button>
-      <button id="denyBtn" class="deny">Deny 😅</button>
+      <div class="btn-slot">
+        <button id="acceptBtn" class="accept">Accept my love</button>
+      </div>
+    
+      <div class="btn-slot">
+        <button id="denyBtn" class="deny">Deny 😅</button>
+      </div>
     </div>
   </div>
 </div>
@@ -301,12 +318,12 @@
 
       if (dist < safe) {
         let f = (safe - dist) / safe;
-        vel.x += (dx/dist) * f * 1.2;
-        vel.y += (dy/dist) * f * 1.2;
+        vel.x += (dx/dist) * f * 2.0;
+        vel.y += (dy/dist) * f * 2.0;
       }
 
-      vel.x *= 0.92;
-      vel.y *= 0.92;
+      vel.x *= 0.96;
+      vel.y *= 0.96;
 
       pos.x += vel.x;
       pos.y += vel.y;
